@@ -13,9 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedSmartRevisionIndexRouteImport } from './routes/_authenticated/smart-revision.index'
+import { Route as AuthenticatedSmartRevisionDailyRouteImport } from './routes/_authenticated/smart-revision.daily'
 import { Route as AuthenticatedSmartRevisionGenerateRouteImport } from './routes/_authenticated/smart-revision.generate'
+import { Route as AuthenticatedSmartRevisionProgressRouteImport } from './routes/_authenticated/smart-revision.progress'
+import { Route as AuthenticatedSmartRevisionReviewRouteImport } from './routes/_authenticated/smart-revision.review'
 import { Route as AuthenticatedSmartRevisionUploadRouteImport } from './routes/_authenticated/smart-revision.upload'
 import { Route as AuthenticatedSmartRevisionDecksIndexRouteImport } from './routes/_authenticated/smart-revision.decks.index'
+import { Route as AuthenticatedSmartRevisionDecksDeckIdRouteImport } from './routes/_authenticated/smart-revision.decks.$deckId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,10 +41,34 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSmartRevisionIndexRoute =
+  AuthenticatedSmartRevisionIndexRouteImport.update({
+    id: '/smart-revision/',
+    path: '/smart-revision/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSmartRevisionDailyRoute =
+  AuthenticatedSmartRevisionDailyRouteImport.update({
+    id: '/smart-revision/daily',
+    path: '/smart-revision/daily',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSmartRevisionGenerateRoute =
   AuthenticatedSmartRevisionGenerateRouteImport.update({
     id: '/smart-revision/generate',
     path: '/smart-revision/generate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSmartRevisionProgressRoute =
+  AuthenticatedSmartRevisionProgressRouteImport.update({
+    id: '/smart-revision/progress',
+    path: '/smart-revision/progress',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSmartRevisionReviewRoute =
+  AuthenticatedSmartRevisionReviewRouteImport.update({
+    id: '/smart-revision/review',
+    path: '/smart-revision/review',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSmartRevisionUploadRoute =
@@ -54,21 +83,37 @@ const AuthenticatedSmartRevisionDecksIndexRoute =
     path: '/smart-revision/decks/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSmartRevisionDecksDeckIdRoute =
+  AuthenticatedSmartRevisionDecksDeckIdRouteImport.update({
+    id: '/smart-revision/decks/$deckId',
+    path: '/smart-revision/decks/$deckId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/smart-revision/daily': typeof AuthenticatedSmartRevisionDailyRoute
   '/smart-revision/generate': typeof AuthenticatedSmartRevisionGenerateRoute
+  '/smart-revision/progress': typeof AuthenticatedSmartRevisionProgressRoute
+  '/smart-revision/review': typeof AuthenticatedSmartRevisionReviewRoute
   '/smart-revision/upload': typeof AuthenticatedSmartRevisionUploadRoute
+  '/smart-revision/': typeof AuthenticatedSmartRevisionIndexRoute
+  '/smart-revision/decks/$deckId': typeof AuthenticatedSmartRevisionDecksDeckIdRoute
   '/smart-revision/decks/': typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/smart-revision/daily': typeof AuthenticatedSmartRevisionDailyRoute
   '/smart-revision/generate': typeof AuthenticatedSmartRevisionGenerateRoute
+  '/smart-revision/progress': typeof AuthenticatedSmartRevisionProgressRoute
+  '/smart-revision/review': typeof AuthenticatedSmartRevisionReviewRoute
   '/smart-revision/upload': typeof AuthenticatedSmartRevisionUploadRoute
+  '/smart-revision': typeof AuthenticatedSmartRevisionIndexRoute
+  '/smart-revision/decks/$deckId': typeof AuthenticatedSmartRevisionDecksDeckIdRoute
   '/smart-revision/decks': typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 export interface FileRoutesById {
@@ -77,8 +122,13 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/smart-revision/daily': typeof AuthenticatedSmartRevisionDailyRoute
   '/_authenticated/smart-revision/generate': typeof AuthenticatedSmartRevisionGenerateRoute
+  '/_authenticated/smart-revision/progress': typeof AuthenticatedSmartRevisionProgressRoute
+  '/_authenticated/smart-revision/review': typeof AuthenticatedSmartRevisionReviewRoute
   '/_authenticated/smart-revision/upload': typeof AuthenticatedSmartRevisionUploadRoute
+  '/_authenticated/smart-revision/': typeof AuthenticatedSmartRevisionIndexRoute
+  '/_authenticated/smart-revision/decks/$deckId': typeof AuthenticatedSmartRevisionDecksDeckIdRoute
   '/_authenticated/smart-revision/decks/': typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 export interface FileRouteTypes {
@@ -87,16 +137,26 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/smart-revision/daily'
     | '/smart-revision/generate'
+    | '/smart-revision/progress'
+    | '/smart-revision/review'
     | '/smart-revision/upload'
+    | '/smart-revision/'
+    | '/smart-revision/decks/$deckId'
     | '/smart-revision/decks/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/smart-revision/daily'
     | '/smart-revision/generate'
+    | '/smart-revision/progress'
+    | '/smart-revision/review'
     | '/smart-revision/upload'
+    | '/smart-revision'
+    | '/smart-revision/decks/$deckId'
     | '/smart-revision/decks'
   id:
     | '__root__'
@@ -104,8 +164,13 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/_authenticated/smart-revision/daily'
     | '/_authenticated/smart-revision/generate'
+    | '/_authenticated/smart-revision/progress'
+    | '/_authenticated/smart-revision/review'
     | '/_authenticated/smart-revision/upload'
+    | '/_authenticated/smart-revision/'
+    | '/_authenticated/smart-revision/decks/$deckId'
     | '/_authenticated/smart-revision/decks/'
   fileRoutesById: FileRoutesById
 }
@@ -146,11 +211,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/smart-revision/': {
+      id: '/_authenticated/smart-revision/'
+      path: '/smart-revision'
+      fullPath: '/smart-revision/'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/smart-revision/daily': {
+      id: '/_authenticated/smart-revision/daily'
+      path: '/smart-revision/daily'
+      fullPath: '/smart-revision/daily'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionDailyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/smart-revision/generate': {
       id: '/_authenticated/smart-revision/generate'
       path: '/smart-revision/generate'
       fullPath: '/smart-revision/generate'
       preLoaderRoute: typeof AuthenticatedSmartRevisionGenerateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/smart-revision/progress': {
+      id: '/_authenticated/smart-revision/progress'
+      path: '/smart-revision/progress'
+      fullPath: '/smart-revision/progress'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionProgressRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/smart-revision/review': {
+      id: '/_authenticated/smart-revision/review'
+      path: '/smart-revision/review'
+      fullPath: '/smart-revision/review'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionReviewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/smart-revision/upload': {
@@ -167,19 +260,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSmartRevisionDecksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/smart-revision/decks/$deckId': {
+      id: '/_authenticated/smart-revision/decks/$deckId'
+      path: '/smart-revision/decks/$deckId'
+      fullPath: '/smart-revision/decks/$deckId'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionDecksDeckIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSmartRevisionDailyRoute: typeof AuthenticatedSmartRevisionDailyRoute
   AuthenticatedSmartRevisionGenerateRoute: typeof AuthenticatedSmartRevisionGenerateRoute
+  AuthenticatedSmartRevisionProgressRoute: typeof AuthenticatedSmartRevisionProgressRoute
+  AuthenticatedSmartRevisionReviewRoute: typeof AuthenticatedSmartRevisionReviewRoute
   AuthenticatedSmartRevisionUploadRoute: typeof AuthenticatedSmartRevisionUploadRoute
+  AuthenticatedSmartRevisionIndexRoute: typeof AuthenticatedSmartRevisionIndexRoute
+  AuthenticatedSmartRevisionDecksDeckIdRoute: typeof AuthenticatedSmartRevisionDecksDeckIdRoute
   AuthenticatedSmartRevisionDecksIndexRoute: typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSmartRevisionDailyRoute: AuthenticatedSmartRevisionDailyRoute,
   AuthenticatedSmartRevisionGenerateRoute:
     AuthenticatedSmartRevisionGenerateRoute,
+  AuthenticatedSmartRevisionProgressRoute:
+    AuthenticatedSmartRevisionProgressRoute,
+  AuthenticatedSmartRevisionReviewRoute: AuthenticatedSmartRevisionReviewRoute,
   AuthenticatedSmartRevisionUploadRoute: AuthenticatedSmartRevisionUploadRoute,
+  AuthenticatedSmartRevisionIndexRoute: AuthenticatedSmartRevisionIndexRoute,
+  AuthenticatedSmartRevisionDecksDeckIdRoute:
+    AuthenticatedSmartRevisionDecksDeckIdRoute,
   AuthenticatedSmartRevisionDecksIndexRoute:
     AuthenticatedSmartRevisionDecksIndexRoute,
 }

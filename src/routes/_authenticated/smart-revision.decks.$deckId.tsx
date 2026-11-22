@@ -28,7 +28,7 @@ import { keys, useStudyData } from "@/lib/data/queries";
 import { deckStats, emptyDeckStats } from "@/lib/deck-stats";
 import { buildDueQueue } from "@/lib/srs/queue";
 
-export const Route = createFileRoute("/_authenticated/smart-revision/decks/")({
+export const Route = createFileRoute("/_authenticated/smart-revision/decks/$deckId")({
   head: () => ({
     meta: [
       { title: "Deck — StudyMate AI" },

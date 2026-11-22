@@ -5,6 +5,7 @@ import {
   CalendarClock,
   FileUp,
   Home,
+  LayoutDashboard,
   Layers,
   Menu,
   Sparkles,
@@ -15,16 +16,28 @@ import { useState, type ReactNode } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-type NavItem = { label: string; icon: LucideIcon; to?: "/" | "/smart-revision/upload" };
+type NavItem = {
+  label: string;
+  icon: LucideIcon;
+  to:
+    | "/"
+    | "/smart-revision"
+    | "/smart-revision/upload"
+    | "/smart-revision/generate"
+    | "/smart-revision/daily"
+    | "/smart-revision/decks"
+    | "/smart-revision/progress";
+};
 
 const mainNav: NavItem[] = [{ label: "Home", icon: Home, to: "/" }];
 
 const revisionNav: NavItem[] = [
+  { label: "Dashboard", icon: LayoutDashboard, to: "/smart-revision" },
   { label: "Upload PDF", icon: FileUp, to: "/smart-revision/upload" },
-  { label: "Generate Flashcards", icon: Sparkles },
-  { label: "Daily Revision", icon: CalendarClock },
-  { label: "My Decks", icon: Layers },
-  { label: "Progress", icon: BarChart3 },
+  { label: "Generate Flashcards", icon: Sparkles, to: "/smart-revision/generate" },
+  { label: "Daily Revision", icon: CalendarClock, to: "/smart-revision/daily" },
+  { label: "My Decks", icon: Layers, to: "/smart-revision/decks" },
+  { label: "Progress", icon: BarChart3, to: "/smart-revision/progress" },
 ];
 
 function Brand() {
@@ -34,7 +47,7 @@ function Brand() {
         <BookOpenCheck className="size-5" />
       </span>
       <span className="font-display text-lg font-bold text-foreground">
-        StudyMate <span className="text-primary">AI</span>
+        Brain<span className="text-primary">Stack</span>
       </span>
     </Link>
   );
@@ -45,22 +58,10 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
   const renderItem = (item: NavItem) => {
     const Icon = item.icon;
-    if (!item.to) {
-      return (
-        <div
-          key={item.label}
-          aria-disabled="true"
-          className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground/70"
-        >
-          <Icon className="size-[18px]" />
-          <span className="flex-1">{item.label}</span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-            Soon
-          </span>
-        </div>
-      );
-    }
-    const active = pathname === item.to;
+    // My Decks stays highlighted on a deck's own page.
+    const active =
+      pathname.replace(/(.)\/$/, "$1") === item.to ||
+      (item.to === "/smart-revision/decks" && pathname.startsWith("/smart-revision/decks/"));
     return (
       <Link
         key={item.label}
@@ -130,7 +131,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Sheet>
 
       <main className="lg:pl-64">
-        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">{children}</div>
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+          {children}
+        </div>
       </main>
     </div>
   );

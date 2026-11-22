@@ -12,7 +12,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * StudyMate AI design system: airy white surfaces, violet-blue primary, sky-blue accents.
+ * BrainStack design system: airy white surfaces, violet-blue primary, sky-blue accents.
  * All colors are oklch. Add new semantic colors to :root/.dark and register them below.
  */
 
@@ -121,13 +121,11 @@
     oklch(0.6 0.17 262) 55%,
     oklch(0.68 0.13 232) 100%
   );
-  --gradient-wash: radial-gradient(
-      60rem 30rem at 100% -10%,
-      oklch(0.94 0.04 240 / 0.7),
-      transparent 60%
-    ),
+  --gradient-wash:
+    radial-gradient(60rem 30rem at 100% -10%, oklch(0.94 0.04 240 / 0.7), transparent 60%),
     radial-gradient(50rem 30rem at -10% 0%, oklch(0.95 0.035 290 / 0.8), transparent 60%);
-  --shadow-soft-value: 0 1px 2px oklch(0.3 0.05 280 / 0.04), 0 8px 24px -12px oklch(0.4 0.1 280 / 0.14);
+  --shadow-soft-value:
+    0 1px 2px oklch(0.3 0.05 280 / 0.04), 0 8px 24px -12px oklch(0.4 0.1 280 / 0.14);
   --shadow-lift-value: 0 18px 40px -18px oklch(0.45 0.18 279 / 0.45);
 }
 

@@ -1,4 +1,5 @@
-// Server-only: prompts and Lovable AI Gateway calls for flashcard generation.
+// Server-only: prompts and AI calls for flashcard generation.
+// Uses OpenRouter when OPENROUTER_API_KEY is set, otherwise the Lovable AI Gateway.
 import { GatewayError, generateResponse } from "@lovable.dev/ai-gateway";
 
 import {
@@ -10,10 +11,12 @@ import {
 } from "./generation";
 
 const MODEL = "openai/gpt-6-astra";
+const OPENROUTER_MODEL = "baidu/ernie-5.5-flash-preview:free";
 
 const DIFFICULTY_GUIDE: Record<Difficulty, string> = {
   easy: "Easy: direct recall of definitions, names and single facts stated plainly in the text.",
-  medium: "Medium: understanding — explain a concept, compare two ideas, or state a cause/effect from the text.",
+  medium:
+    "Medium: understanding — explain a concept, compare two ideas, or state a cause/effect from the text.",
   hard: "Hard: application and connection — multi-step reasoning, why/how questions, or linking several facts from the text.",
 };
 
@@ -41,7 +44,13 @@ const resultSchema = {
   },
 } as const;
 
-type RawCard = { question: string; answer: string; topic: string; difficulty: Difficulty; source_page: number | null };
+type RawCard = {
+  question: string;
+  answer: string;
+  topic: string;
+  difficulty: Difficulty;
+  source_page: number | null;
+};
 type RawResult = { subject: string; insufficient_content: boolean; cards: RawCard[] };
 
 function systemPrompt(language: Language) {
@@ -75,40 +84,81 @@ function friendlyError(err: unknown): GenerationError {
       case "rate_limited":
         return new GenerationError("The AI is busy right now. Please wait a minute and try again.");
       case "payment_required":
-        return new GenerationError("AI credits for this app have run out. The app owner needs to add credits.");
+        return new GenerationError(
+          "AI credits for this app have run out. The app owner needs to add credits.",
+        );
       case "timeout":
       case "network_error":
-        return new GenerationError("The AI took too long to respond. Try fewer cards or a narrower topic.");
+        return new GenerationError(
+          "The AI took too long to respond. Try fewer cards or a narrower topic.",
+        );
       default:
-        return new GenerationError("The AI couldn't generate flashcards right now. Please try again.");
+        return new GenerationError(
+          "The AI couldn't generate flashcards right now. Please try again.",
+        );
     }
   }
   console.error("[flashcards] unexpected error", err);
   return new GenerationError("Something went wrong while generating flashcards. Please try again.");
 }
 
-async function callModel(instructions: string, userText: string): Promise<RawResult> {
-  let response;
+async function callOpenRouter(
+  apiKey: string,
+  instructions: string,
+  userText: string,
+): Promise<string> {
+  let res: Response;
   try {
-    response = await generateResponse({
-      model: MODEL,
-      instructions,
-      input: [{ role: "user", content: userText }],
-      reasoning: { effort: "low" },
-      text: { format: { type: "json_schema", name: "flashcards", strict: true, schema: resultSchema } },
+    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "X-Title": "BrainStack",
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [
+          { role: "system", content: instructions },
+          { role: "user", content: userText },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: { name: "flashcards", strict: true, schema: resultSchema },
+        },
+      }),
+      signal: AbortSignal.timeout(120_000),
     });
   } catch (err) {
-    throw friendlyError(err);
+    console.error("[flashcards] openrouter network error", err);
+    throw new GenerationError(
+      "The AI took too long to respond. Try fewer cards or a narrower topic.",
+    );
   }
-  let text = "";
-  for (const item of response.output ?? []) {
-    if (item.type === "message") {
-      for (const part of item.content) {
-        if (part.type === "output_text") text += part.text;
-        if (part.type === "refusal") throw new GenerationError("The AI declined to make cards from this text.");
-      }
-    }
+  if (!res.ok) {
+    console.error("[flashcards] openrouter error", res.status, (await res.text()).slice(0, 500));
+    if (res.status === 429)
+      throw new GenerationError("The AI is busy right now. Please wait a minute and try again.");
+    if (res.status === 402)
+      throw new GenerationError(
+        "AI credits for this app have run out. The app owner needs to add credits.",
+      );
+    throw new GenerationError("The AI couldn't generate flashcards right now. Please try again.");
   }
+  const data = (await res.json()) as {
+    choices?: { message?: { content?: string | null; refusal?: string | null } }[];
+  };
+  const message = data.choices?.[0]?.message;
+  if (message?.refusal) throw new GenerationError("The AI declined to make cards from this text.");
+  // Some models wrap JSON in ``` fences even when asked for a schema.
+  return (message?.content ?? "").trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+}
+
+async function callModel(instructions: string, userText: string): Promise<RawResult> {
+  const openRouterKey = process.env["OPENROUTER_API_KEY"];
+  const text = openRouterKey
+    ? await callOpenRouter(openRouterKey, instructions, userText)
+    : await callLovable(instructions, userText);
   try {
     const parsed = JSON.parse(text) as RawResult;
     if (!Array.isArray(parsed.cards)) throw new Error("no cards");
@@ -119,14 +169,49 @@ async function callModel(instructions: string, userText: string): Promise<RawRes
   }
 }
 
-function clean(raw: RawCard[], subject: string, pagesUsed: number[], fallback: Difficulty): GeneratedCard[] {
+async function callLovable(instructions: string, userText: string): Promise<string> {
+  let response;
+  try {
+    response = await generateResponse({
+      model: MODEL,
+      instructions,
+      input: [{ role: "user", content: userText }],
+      reasoning: { effort: "low" },
+      text: {
+        format: { type: "json_schema", name: "flashcards", strict: true, schema: resultSchema },
+      },
+    });
+  } catch (err) {
+    throw friendlyError(err);
+  }
+  let text = "";
+  for (const item of response.output ?? []) {
+    if (item.type === "message") {
+      for (const part of item.content) {
+        if (part.type === "output_text") text += part.text;
+        if (part.type === "refusal")
+          throw new GenerationError("The AI declined to make cards from this text.");
+      }
+    }
+  }
+  return text;
+}
+
+function clean(
+  raw: RawCard[],
+  subject: string,
+  pagesUsed: number[],
+  fallback: Difficulty,
+): GeneratedCard[] {
   return raw
     .map((c) => ({
       question: (c.question ?? "").trim(),
       answer: (c.answer ?? "").trim(),
       topic: (c.topic ?? "").trim().slice(0, 80),
       subject,
-      difficulty: (["easy", "medium", "hard"] as const).includes(c.difficulty) ? c.difficulty : fallback,
+      difficulty: (["easy", "medium", "hard"] as const).includes(c.difficulty)
+        ? c.difficulty
+        : fallback,
       sourcePage: validSourcePage(c.source_page, pagesUsed),
     }))
     .filter((c) => c.question && c.answer);
@@ -149,8 +234,15 @@ export async function generateCards(args: {
     `Create exactly ${args.count} flashcards.`,
     `Difficulty for every card — ${DIFFICULTY_GUIDE[args.difficulty]}`,
     focus,
-    args.subject?.trim() ? `The subject is "${args.subject.trim()}"; use it as the subject value.` : "",
-    args.avoid.length ? `Do not repeat these existing questions:\n${args.avoid.slice(0, 80).map((q) => `- ${q}`).join("\n")}` : "",
+    args.subject?.trim()
+      ? `The subject is "${args.subject.trim()}"; use it as the subject value.`
+      : "",
+    args.avoid.length
+      ? `Do not repeat these existing questions:\n${args.avoid
+          .slice(0, 80)
+          .map((q) => `- ${q}`)
+          .join("\n")}`
+      : "",
     "Return JSON.",
     "SOURCE TEXT:",
     args.sourceText,
@@ -160,7 +252,10 @@ export async function generateCards(args: {
 
   const result = await callModel(systemPrompt(args.language), user);
   const subject = args.subject?.trim() || result.subject?.trim() || "General";
-  const cards = dedupeCards(clean(result.cards, subject, args.pagesUsed, args.difficulty), args.avoid).slice(0, args.count);
+  const cards = dedupeCards(
+    clean(result.cards, subject, args.pagesUsed, args.difficulty),
+    args.avoid,
+  ).slice(0, args.count);
   if (cards.length === 0) {
     throw new GenerationError(
       args.topic?.trim()

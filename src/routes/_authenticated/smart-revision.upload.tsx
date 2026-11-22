@@ -13,10 +13,16 @@ import { useStudyMaterials } from "@/lib/study-materials";
 export const Route = createFileRoute("/_authenticated/smart-revision/upload")({
   head: () => ({
     meta: [
-      { title: "Upload PDF notes — StudyMate AI" },
-      { name: "description", content: "Upload PDF notes and extract their text page by page, ready for AI flashcards." },
-      { property: "og:title", content: "Upload PDF notes — StudyMate AI" },
-      { property: "og:description", content: "Upload PDF notes and extract their text page by page, ready for AI flashcards." },
+      { title: "Upload PDF notes — BrainStack" },
+      {
+        name: "description",
+        content: "Upload PDF notes and extract their text page by page, ready for AI flashcards.",
+      },
+      { property: "og:title", content: "Upload PDF notes — BrainStack" },
+      {
+        property: "og:description",
+        content: "Upload PDF notes and extract their text page by page, ready for AI flashcards.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -41,7 +47,8 @@ function UploadPage() {
         <p className="text-sm font-semibold text-primary">Smart Revision · Step 1</p>
         <h1 className="mt-1 text-3xl font-bold">Upload your PDF notes</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          We read every page and pull out the actual text — that's what your flashcards will be built from.
+          We read every page and pull out the actual text — that's what your flashcards will be
+          built from.
         </p>
       </header>
 
@@ -54,7 +61,12 @@ function UploadPage() {
               <h2 className="mb-3 text-lg font-semibold">Processing</h2>
               <ul className="flex flex-col gap-3">
                 {inProgress.map((m) => (
-                  <MaterialCard key={m.id} material={m} onRemove={() => removeMaterial(m.id)} onRetry={() => retryMaterial(m.id)} />
+                  <MaterialCard
+                    key={m.id}
+                    material={m}
+                    onRemove={() => removeMaterial(m.id)}
+                    onRetry={() => retryMaterial(m.id)}
+                  />
                 ))}
               </ul>
             </section>
@@ -65,16 +77,22 @@ function UploadPage() {
               Your study materials <span className="text-muted-foreground">({library.length})</span>
             </h2>
             {saved.isLoading ? (
-              <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Loading your files…</p>
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" /> Loading your files…
+              </p>
             ) : saved.error ? (
-              <p className="rounded-xl bg-destructive-soft px-3 py-2 text-sm text-destructive">Couldn't load your files. Refresh to try again.</p>
+              <p className="rounded-xl bg-destructive-soft px-3 py-2 text-sm text-destructive">
+                Couldn't load your files. Refresh to try again.
+              </p>
             ) : library.length === 0 ? (
               <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
                 No saved files yet. PDFs appear here once their text is extracted.
               </p>
             ) : (
               <ul className="flex flex-col gap-3">
-                {library.map((m) => <SavedMaterialCard key={m.id} material={m} />)}
+                {library.map((m) => (
+                  <SavedMaterialCard key={m.id} material={m} />
+                ))}
               </ul>
             )}
           </section>
@@ -96,7 +114,9 @@ function UploadPage() {
                 <Link to="/smart-revision/generate">Generate flashcards</Link>
               </Button>
             ) : (
-              <Button className="mt-4 w-full rounded-xl" disabled>Generate flashcards</Button>
+              <Button className="mt-4 w-full rounded-xl" disabled>
+                Generate flashcards
+              </Button>
             )}
           </div>
 
@@ -105,7 +125,8 @@ function UploadPage() {
               <ShieldCheck className="size-4" /> Private by design
             </div>
             <p className="mt-1.5 text-muted-foreground">
-              Your PDFs are read inside your browser. Only the extracted text is saved, and only you can see it.
+              Your PDFs are read inside your browser. Only the extracted text is saved, and only you
+              can see it.
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 # Pagewise Recall
 
-Build StudyMate AI from the ground up around the attached specification (AI-powered Anki-based spaced repetition flashcard system with a clean modern light purple/blue educational dashboard), starting with the PDF upload and client-side parsing flow.
+Build BrainStack from the ground up around the attached specification (AI-powered Anki-based spaced repetition flashcard system with a clean modern light purple/blue educational dashboard), starting with the PDF upload and client-side parsing flow.
 
 This project was built with [Lovable](https://lovable.dev).
 

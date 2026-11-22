@@ -11,10 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Choose a new password — StudyMate AI" },
-      { name: "description", content: "Set a new password for your StudyMate AI account." },
-      { property: "og:title", content: "Choose a new password — StudyMate AI" },
-      { property: "og:description", content: "Set a new password for your StudyMate AI account." },
+      { title: "Choose a new password — BrainStack" },
+      { name: "description", content: "Set a new password for your BrainStack account." },
+      { property: "og:title", content: "Choose a new password — BrainStack" },
+      { property: "og:description", content: "Set a new password for your BrainStack account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -57,15 +57,28 @@ function ResetPasswordPage() {
         <KeyRound className="mx-auto size-10 text-primary" />
         <h1 className="mt-3 text-3xl font-bold">Choose a new password</h1>
       </div>
-      <form onSubmit={submit} className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6 shadow-soft">
+      <form
+        onSubmit={submit}
+        className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6 shadow-soft"
+      >
         {!ready && (
           <p className="text-sm text-muted-foreground">
-            Open this page from the reset link in your email. If the link has expired, request a new one from the sign-in page.
+            Open this page from the reset link in your email. If the link has expired, request a new
+            one from the sign-in page.
           </p>
         )}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="new-password">New password</Label>
-          <Input id="new-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" minLength={8} required disabled={!ready} />
+          <Input
+            id="new-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            minLength={8}
+            required
+            disabled={!ready}
+          />
         </div>
         <Button type="submit" disabled={!ready || busy} className="h-11 rounded-xl font-semibold">
           {busy && <Loader2 className="animate-spin" />} Save new password

@@ -8,6 +8,13 @@
 // hosting already compresses at the edge.
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { loadEnv } from "vite";
+
+// Local dev: make OPENROUTER_API_KEY from .env.local visible to server code only (it has no VITE_ prefix,
+// so it never reaches the browser). On hosting, set it as a secret instead.
+for (const [key, value] of Object.entries(loadEnv("development", process.cwd(), "OPENROUTER_"))) {
+  process.env[key] ??= value;
+}
 
 export default defineConfig({
   tanstackStart: {

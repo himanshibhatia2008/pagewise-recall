@@ -85,13 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "StudyMate AI — Smart Revision" },
+      { title: "BrainStack — Smart Revision" },
       {
         name: "description",
         content: "Turn your PDF notes into AI flashcards and revise them with spaced repetition.",
       },
-      { name: "author", content: "StudyMate AI" },
-      { property: "og:title", content: "StudyMate AI — Smart Revision" },
+      { name: "author", content: "BrainStack" },
+      { property: "og:title", content: "BrainStack — Smart Revision" },
       {
         property: "og:description",
         content: "Turn your PDF notes into AI flashcards and revise them with spaced repetition.",

@@ -10,14 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
-const REDIRECT_KEY = "studymate.redirect";
+const REDIRECT_KEY = "brainstack.redirect";
 
 /** Only same-origin paths are allowed as post-sign-in destinations. */
 function safePath(value: string | undefined | null): string {
   if (!value) return "/smart-revision";
   try {
     const url = new URL(value, window.location.origin);
-    if (url.origin !== window.location.origin || url.pathname.startsWith("/auth")) return "/smart-revision";
+    if (url.origin !== window.location.origin || url.pathname.startsWith("/auth"))
+      return "/smart-revision";
     return url.pathname + url.search;
   } catch {
     return "/smart-revision";
@@ -28,10 +29,16 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ redirect: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Sign in — StudyMate AI" },
-      { name: "description", content: "Sign in to StudyMate AI to save your flashcards and revision progress." },
-      { property: "og:title", content: "Sign in — StudyMate AI" },
-      { property: "og:description", content: "Sign in to StudyMate AI to save your flashcards and revision progress." },
+      { title: "Sign in — BrainStack" },
+      {
+        name: "description",
+        content: "Sign in to BrainStack to save your flashcards and revision progress.",
+      },
+      { property: "og:title", content: "Sign in — BrainStack" },
+      {
+        property: "og:description",
+        content: "Sign in to BrainStack to save your flashcards and revision progress.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -89,7 +96,10 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { emailRedirectTo: `${window.location.origin}/auth`, data: { display_name: name.trim() } },
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth`,
+            data: { display_name: name.trim() },
+          },
         });
         if (error) throw error;
         if (!data.session) setSentTo({ email: email.trim(), kind: "confirm" });
@@ -111,7 +121,11 @@ function AuthPage() {
           <BookOpenCheck className="size-6" />
         </span>
         <h1 className="mt-4 text-3xl font-bold">
-          {mode === "signup" ? "Create your account" : mode === "forgot" ? "Reset your password" : "Welcome back"}
+          {mode === "signup"
+            ? "Create your account"
+            : mode === "forgot"
+              ? "Reset your password"
+              : "Welcome back"}
         </h1>
         <p className="mt-2 text-muted-foreground">
           {mode === "forgot"
@@ -130,7 +144,14 @@ function AuthPage() {
                 ? `We sent a confirmation link to ${sentTo.email}. Click it to finish creating your account.`
                 : `If an account exists for ${sentTo.email}, a password reset link is on its way.`}
             </p>
-            <Button variant="outline" className="mt-2 rounded-xl" onClick={() => { setSentTo(null); setMode("signin"); }}>
+            <Button
+              variant="outline"
+              className="mt-2 rounded-xl"
+              onClick={() => {
+                setSentTo(null);
+                setMode("signin");
+              }}
+            >
               Back to sign in
             </Button>
           </div>
@@ -140,7 +161,8 @@ function AuthPage() {
               <>
                 <ProviderButtons onSignedIn={goNext} />
                 <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="h-px flex-1 bg-border" /> or use email <span className="h-px flex-1 bg-border" />
+                  <span className="h-px flex-1 bg-border" /> or use email{" "}
+                  <span className="h-px flex-1 bg-border" />
                 </div>
               </>
             )}
@@ -148,19 +170,36 @@ function AuthPage() {
               {mode === "signup" && (
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="name">Your name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Himanshi" autoComplete="name" />
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Himanshi"
+                    autoComplete="name"
+                  />
                 </div>
               )}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  required
+                />
               </div>
               {mode !== "forgot" && (
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
                     {mode === "signin" && (
-                      <button type="button" className="text-xs font-medium text-primary hover:underline" onClick={() => setMode("forgot")}>
+                      <button
+                        type="button"
+                        className="text-xs font-medium text-primary hover:underline"
+                        onClick={() => setMode("forgot")}
+                      >
                         Forgot password?
                       </button>
                     )}
@@ -178,21 +217,43 @@ function AuthPage() {
               )}
               <Button type="submit" disabled={busy} className="h-11 rounded-xl font-semibold">
                 {busy && <Loader2 className="animate-spin" />}
-                {mode === "signup" ? "Create account" : mode === "forgot" ? "Send reset link" : "Sign in"}
+                {mode === "signup"
+                  ? "Create account"
+                  : mode === "forgot"
+                    ? "Send reset link"
+                    : "Sign in"}
               </Button>
             </form>
             <p className="mt-5 text-center text-sm text-muted-foreground">
               {mode === "signin" ? (
-                <>New to StudyMate AI?{" "}<button className="font-semibold text-primary hover:underline" onClick={() => setMode("signup")}>Create an account</button></>
+                <>
+                  New to BrainStack?{" "}
+                  <button
+                    className="font-semibold text-primary hover:underline"
+                    onClick={() => setMode("signup")}
+                  >
+                    Create an account
+                  </button>
+                </>
               ) : (
-                <>Already have an account?{" "}<button className="font-semibold text-primary hover:underline" onClick={() => setMode("signin")}>Sign in</button></>
+                <>
+                  Already have an account?{" "}
+                  <button
+                    className="font-semibold text-primary hover:underline"
+                    onClick={() => setMode("signin")}
+                  >
+                    Sign in
+                  </button>
+                </>
               )}
             </p>
           </>
         )}
       </div>
       <p className="text-center text-xs text-muted-foreground">
-        <Link to="/" className="hover:underline">← Back to home</Link>
+        <Link to="/" className="hover:underline">
+          ← Back to home
+        </Link>
       </p>
     </div>
   );

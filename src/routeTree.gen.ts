@@ -10,43 +10,110 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SmartRevisionUploadRouteImport } from './routes/smart-revision.upload'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedSmartRevisionGenerateRouteImport } from './routes/_authenticated/smart-revision.generate'
+import { Route as AuthenticatedSmartRevisionUploadRouteImport } from './routes/_authenticated/smart-revision.upload'
+import { Route as AuthenticatedSmartRevisionDecksIndexRouteImport } from './routes/_authenticated/smart-revision.decks.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SmartRevisionUploadRoute = SmartRevisionUploadRouteImport.update({
-  id: '/smart-revision/upload',
-  path: '/smart-revision/upload',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSmartRevisionGenerateRoute =
+  AuthenticatedSmartRevisionGenerateRouteImport.update({
+    id: '/smart-revision/generate',
+    path: '/smart-revision/generate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSmartRevisionUploadRoute =
+  AuthenticatedSmartRevisionUploadRouteImport.update({
+    id: '/smart-revision/upload',
+    path: '/smart-revision/upload',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSmartRevisionDecksIndexRoute =
+  AuthenticatedSmartRevisionDecksIndexRouteImport.update({
+    id: '/smart-revision/decks/',
+    path: '/smart-revision/decks/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/smart-revision/upload': typeof SmartRevisionUploadRoute
+  '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/smart-revision/generate': typeof AuthenticatedSmartRevisionGenerateRoute
+  '/smart-revision/upload': typeof AuthenticatedSmartRevisionUploadRoute
+  '/smart-revision/decks/': typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/smart-revision/upload': typeof SmartRevisionUploadRoute
+  '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/smart-revision/generate': typeof AuthenticatedSmartRevisionGenerateRoute
+  '/smart-revision/upload': typeof AuthenticatedSmartRevisionUploadRoute
+  '/smart-revision/decks': typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/smart-revision/upload': typeof SmartRevisionUploadRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/smart-revision/generate': typeof AuthenticatedSmartRevisionGenerateRoute
+  '/_authenticated/smart-revision/upload': typeof AuthenticatedSmartRevisionUploadRoute
+  '/_authenticated/smart-revision/decks/': typeof AuthenticatedSmartRevisionDecksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/smart-revision/upload'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/smart-revision/generate'
+    | '/smart-revision/upload'
+    | '/smart-revision/decks/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/smart-revision/upload'
-  id: '__root__' | '/' | '/smart-revision/upload'
+  to:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/smart-revision/generate'
+    | '/smart-revision/upload'
+    | '/smart-revision/decks'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/reset-password'
+    | '/_authenticated/smart-revision/generate'
+    | '/_authenticated/smart-revision/upload'
+    | '/_authenticated/smart-revision/decks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SmartRevisionUploadRoute: typeof SmartRevisionUploadRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,19 +125,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/smart-revision/upload': {
-      id: '/smart-revision/upload'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/smart-revision/generate': {
+      id: '/_authenticated/smart-revision/generate'
+      path: '/smart-revision/generate'
+      fullPath: '/smart-revision/generate'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionGenerateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/smart-revision/upload': {
+      id: '/_authenticated/smart-revision/upload'
       path: '/smart-revision/upload'
       fullPath: '/smart-revision/upload'
-      preLoaderRoute: typeof SmartRevisionUploadRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedSmartRevisionUploadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/smart-revision/decks/': {
+      id: '/_authenticated/smart-revision/decks/'
+      path: '/smart-revision/decks'
+      fullPath: '/smart-revision/decks/'
+      preLoaderRoute: typeof AuthenticatedSmartRevisionDecksIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSmartRevisionGenerateRoute: typeof AuthenticatedSmartRevisionGenerateRoute
+  AuthenticatedSmartRevisionUploadRoute: typeof AuthenticatedSmartRevisionUploadRoute
+  AuthenticatedSmartRevisionDecksIndexRoute: typeof AuthenticatedSmartRevisionDecksIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSmartRevisionGenerateRoute:
+    AuthenticatedSmartRevisionGenerateRoute,
+  AuthenticatedSmartRevisionUploadRoute: AuthenticatedSmartRevisionUploadRoute,
+  AuthenticatedSmartRevisionDecksIndexRoute:
+    AuthenticatedSmartRevisionDecksIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SmartRevisionUploadRoute: SmartRevisionUploadRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

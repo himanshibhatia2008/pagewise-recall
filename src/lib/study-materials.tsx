@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 
 import {
@@ -9,8 +10,10 @@ import {
   type ExtractionVerdict,
   type PageText,
 } from "@/lib/pdf/rules";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
-export type MaterialStatus = "reading" | "extracting" | "ready" | "partial" | "needs-ocr" | "error";
+export type MaterialStatus = "reading" | "extracting" | "saving" | "ready" | "partial" | "needs-ocr" | "error";
 
 export type StudyMaterial = {
   id: string;
@@ -50,6 +53,7 @@ function readWithProgress(file: File, onProgress: (fraction: number) => void) {
 }
 
 export function StudyMaterialsProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [materials, setMaterials] = useState<StudyMaterial[]>([]);
   const files = useRef(new Map<string, File>());
   const cancels = useRef(new Map<string, () => void>());
@@ -102,13 +106,29 @@ export function StudyMaterialsProvider({ children }: { children: ReactNode }) {
           patch(id, { status: "error", progress: 100, error: "This PDF has no pages." });
           return;
         }
-        patch(id, {
-          status: verdict.kind === "needs-ocr" ? "needs-ocr" : verdict.kind,
-          progress: 100,
-          pages,
-          wordCount,
-          verdict,
+        if (verdict.kind === "needs-ocr") {
+          patch(id, { status: "needs-ocr", progress: 100, pages, wordCount, verdict });
+          return;
+        }
+        // Save the extracted text (not the PDF itself) to the student's private library.
+        patch(id, { status: "saving", progress: 100, pages, wordCount, verdict });
+        const { error } = await supabase.from("study_materials").insert({
+          file_name: file.name,
+          file_size: file.size,
+          page_count: verdict.totalPages,
+          text_page_count: verdict.textPages,
+          word_count: wordCount,
+          status: verdict.kind,
+          pages: pages as unknown as Json,
         });
+        if (cancelled) return;
+        if (error) {
+          patch(id, { status: "error", error: "Text was extracted but couldn't be saved. Check your connection and retry." });
+          return;
+        }
+        await queryClient.invalidateQueries({ queryKey: ["materials"] });
+        files.current.delete(id);
+        setMaterials((prev) => prev.filter((m) => m.id !== id));
       } catch (err) {
         if (cancelled) return;
         patch(id, {
@@ -119,7 +139,7 @@ export function StudyMaterialsProvider({ children }: { children: ReactNode }) {
         if (!cancelled) cancels.current.delete(id);
       }
     },
-    [patch],
+    [patch, queryClient],
   );
 
   const addFiles = useCallback<Ctx["addFiles"]>(

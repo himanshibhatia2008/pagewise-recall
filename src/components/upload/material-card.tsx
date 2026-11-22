@@ -21,6 +21,7 @@ function StatusBadge({ m }: { m: StudyMaterial }) {
   const map = {
     reading: { label: "Uploading", cls: "bg-accent text-accent-foreground", Icon: Loader2, spin: true },
     extracting: { label: "Reading pages", cls: "bg-primary-soft text-primary", Icon: Loader2, spin: true },
+    saving: { label: "Saving", cls: "bg-primary-soft text-primary", Icon: Loader2, spin: true },
     ready: { label: "Text extracted", cls: "bg-success-soft text-success", Icon: CheckCircle2, spin: false },
     partial: { label: "Partly readable", cls: "bg-warning-soft text-warning-foreground", Icon: AlertTriangle, spin: false },
     "needs-ocr": { label: "Needs OCR", cls: "bg-warning-soft text-warning-foreground", Icon: ScanText, spin: false },

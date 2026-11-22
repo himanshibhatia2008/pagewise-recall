@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- PDF text extraction runs in the browser with PDF.js, loaded only via dynamic import from `src/lib/pdf/extract.ts` — keeps PDF.js out of SSR/Worker bundles and keeps raw PDFs off the server.
+- PDF acceptance and extraction-quality rules live as pure functions in `src/lib/pdf/rules.ts` with unit tests — one testable source of truth for limits and OCR detection.
+- App chrome (sidebar, mobile menu) lives in `src/components/layout/app-shell.tsx`, wrapped around `<Outlet />` in `__root.tsx`.
+- Smart Revision pages live under the `/smart-revision/*` URL prefix.
